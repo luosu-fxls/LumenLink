@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  USB 设备过滤器：匹配所有 PTP / Still-Image 类设备。
+  class 6 = Still Image, subclass 1, protocol 1 = PTP
+  尼康机身在 USB 模式下会以 (6,1,1) 枚举；部分老机型在某些固件下报 (6,1,0) 或 (0,0,0)，
+  所以这里放宽到 class 6 全部 + 尼康 VID(0x04B0) 兜底。
+-->
+<resources>
+    <usb-device class="6" subclass="1" protocol="1" />
+    <usb-device class="6" />
+    <usb-device vendor-id="1200" /> <!-- 0x04B0 = Nikon -->
+</resources>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">LumenLink 闪光联动</string>
+    <string name="notif_channel_name">补光与相机联动</string>
+    <string name="notif_channel_desc">保持 LED 补光常亮并维持相机连接</string>
+    <string name="notif_title">补光进行中</string>
+    <string name="notif_action_stop">关闭补光</string>
+</resources>

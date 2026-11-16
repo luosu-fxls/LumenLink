@@ -1,0 +1,48 @@
+# ─────────────────────────────────────────────────────────────
+# LumenLink .gitignore
+# ─────────────────────────────────────────────────────────────
+
+# ---- 本地工具链（约 2.8 GB：JDK / Gradle / Android SDK）----
+# 由 build-apk.ps1 首次运行时自动下载，不进仓库
+.toolchain/
+
+# ---- 构建产物 ----
+# Gradle 输出目录
+build/
+*/build/
+**/build/
+.gradle/
+**/.gradle/
+.kotlin/
+**/.kotlin/
+
+# 编译日志
+*.log
+
+# ---- 打包好的 APK ----
+# dist 里放的是 51 个历史版本的安装包，合计 837 MB，不适合放进 Git。
+# 需要发版时请到 GitHub Releases 上传，或在本地运行 build-apk.ps1 生成。
+dist/
+*.apk
+*.aab
+*.ap_
+*.jks
+*.keystore
+
+# ---- 本机配置 ----
+# local.properties 记录的是本机的 Android SDK 绝对路径，
+# 每个开发者的路径都不同，由 build-apk.ps1 自动生成
+local.properties
+
+# ---- IDE ----
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db
+
+# ---- 临时文件 ----
+*.bak
+*.tmp
+*.swp
+*~

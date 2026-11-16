@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- ============ 硬件能力声明 ============ -->
+    <uses-feature
+        android:name="android.hardware.camera.flash"
+        android:required="true" />
+    <uses-feature
+        android:name="android.hardware.usb.host"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.microphone"
+        android:required="false" />
+    <uses-feature
+        android:name="android.hardware.wifi"
+        android:required="false" />
+
+    <!-- ============ 权限 ============ -->
+    <!-- 手电筒：CameraManager.setTorchMode / turnOnTorchWithStrengthLevel 需要 CAMERA -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <!-- 蓝牙：扫描并连接相机的 BLE 服务（仅探测用途，见 BleProbe） -->
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation"
+        tools:targetApi="s" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <!-- Android 11 及以下的旧蓝牙权限 -->
+    <uses-permission
+        android:name="android.permission.BLUETOOTH"
+        android:maxSdkVersion="30" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_ADMIN"
+        android:maxSdkVersion="30" />
+    <!-- 相机 Wi-Fi 通信（PTP/IP over TCP 15740） -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Android 12+：相机热点没有外网，系统会直接掐断沙箱内的网络访问，
+         必须声明本 App 需要局域网访问权限，否则连相机 IP 一律 ECONNREFUSED/超时。 -->
+    <uses-permission android:name="android.permission.ACCESS_LOCAL_NETWORK" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <!-- Android 13+ 的 WifiNetworkSpecifier / SSID 读取 -->
+    <uses-permission
+        android:name="android.permission.NEARBY_WIFI_DEVICES"
+        android:usesPermissionFlags="neverForLocation"
+        tools:targetApi="33" />
+    <uses-permission
+        android:name="android.permission.ACCESS_FINE_LOCATION"
+        android:maxSdkVersion="32"
+        tools:ignore="CoarseFineLocation" />
+    <!-- 音频触发（快门声同步） -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- 前台服务保活 -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- 长曝光期间保持 CPU 唤醒 -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <application
+        android:name=".App"
+        android:allowBackup="false"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.LumenLink"
+        tools:targetApi="34">
+
+        <activity
+            android:name=".ui.MainActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.LumenLink">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!-- USB OTG: 相机插入时直接唤起本应用 -->
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+                android:resource="@xml/usb_device_filter" />
+        </activity>
+
+        <!-- 应急诊断界面：纯文本 + 直接截图，主界面出问题时的排查通道 -->
+        <activity
+            android:name=".ui.DiagActivity"
+            android:exported="false"
+            android:label="LumenLink 应急诊断" />
+
+        <!--
+            常亮补光必须靠前台服务维持：
+            * specialUse  —— 用于"把 LED 手电筒当作外部相机的持续补光光源"，
+                             Google 未提供 torch 类型的 FGS，官方推荐用 specialUse + property 说明用途。
+
+            注意：**不再声明 microphone 前台服务类型**。
+            麦克风只在本界面可见时使用（Activity.onStart 开、onStop 关），
+            服务本身不持有麦克风，因此后台绝不会录音。
+        -->
+        <service
+            android:name=".service.FlashLinkService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse"
+            android:stopWithTask="false">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Holds the LED torch on continuously as an off-camera fill/spill light for an external camera." />
+        </service>
+    </application>
+</manifest>
